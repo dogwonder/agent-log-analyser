@@ -1,0 +1,17 @@
+{
+  "_note": "Operator-published IP range lists. URLs are as best known when written; check them against each operator's documentation before relying on a result. Each list is JSON with ipv4Prefix / ipv6Prefix entries.",
+  "sources": {
+    "openai-gptbot": { "operator": "OpenAI", "url": "https://openai.com/gptbot.json", "tokens": ["GPTBot"] },
+    "openai-chatgpt-user": { "operator": "OpenAI", "url": "https://openai.com/chatgpt-user.json", "tokens": ["ChatGPT-User"] },
+    "openai-searchbot": { "operator": "OpenAI", "url": "https://openai.com/searchbot.json", "tokens": ["OAI-SearchBot"] },
+    "google-googlebot": { "operator": "Google", "url": "https://developers.google.com/static/search/apis/ipranges/googlebot.json", "tokens": ["Googlebot"] },
+    "google-special-crawlers": { "operator": "Google", "url": "https://developers.google.com/static/search/apis/ipranges/special-crawlers.json", "tokens": ["GoogleOther", "Google-InspectionTool", "AdsBot-Google"] },
+    "google-user-triggered": { "operator": "Google", "url": "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers.json", "tokens": ["Google-Agent"] },
+    "google-user-triggered-google": { "operator": "Google", "url": "https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json", "tokens": ["Google-Agent"] },
+    "bing-bingbot": { "operator": "Microsoft", "url": "https://www.bing.com/toolbox/bingbot.json", "tokens": ["bingbot"] },
+    "perplexity-bot": { "operator": "Perplexity", "url": "https://www.perplexity.com/perplexitybot.json", "tokens": ["PerplexityBot"] },
+    "perplexity-user": { "operator": "Perplexity", "url": "https://www.perplexity.com/perplexity-user.json", "tokens": ["Perplexity-User"] },
+    "apple-applebot": { "operator": "Apple", "url": "https://search.developer.apple.com/applebot.json", "tokens": ["Applebot"] },
+    "commoncrawl-ccbot": { "operator": "Common Crawl", "url": "https://index.commoncrawl.org/ccbot.json", "tokens": ["CCBot"] }
+  }
+}

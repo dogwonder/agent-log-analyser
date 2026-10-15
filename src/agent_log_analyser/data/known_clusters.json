@@ -1,0 +1,11 @@
+{
+  "_note": "Networks tied to an agent by outside evidence. These label clusters after detection; they are never used to find them. Attribution is by fingerprint, not proof.",
+  "clusters": [
+    {
+      "name": "Muse (probable)",
+      "cidrs": ["87.81.224.0/19"],
+      "source": "https://loosemore.com/2026/10/09/how-agents-show-up-what-muse-and-other-agents-reveal-when-they-use-whenisbins/",
+      "note": "Block registered to a private customer; Muse's API calls rotated through it. Seen on worldcitiescultureforum.com with a Chrome/138 desktop Linux UA, October 2026."
+    }
+  ]
+}

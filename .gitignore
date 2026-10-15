@@ -1,0 +1,20 @@
+# Log exports and reports contain IP addresses (personal data under UK GDPR).
+# Never commit them.
+*.csv
+*.log
+*.log.*
+*.gz
+*.json.gz
+reports/
+logs/
+
+# Downloaded published IP ranges (refetch with `fetch-ranges`).
+ranges/
+
+__pycache__/
+*.pyc
+.venv/
+dist/
+*.egg-info/
+
+.DS_Store
