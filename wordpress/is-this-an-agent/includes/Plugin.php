@@ -36,10 +36,8 @@ final class Plugin
         if ($networkWide) {
             wp_die('Please activate Is this an agent? separately on each site. Network activation is not supported.');
         }
-        global $wpdb;
-        (new Repository($wpdb))->install();
-        add_option('itia_settings', ['enabled' => false, 'retention' => 7], '', false);
-        update_option('itia_schema', 1, false);
+        add_option('itia_settings', ['enabled' => false, 'retention' => 7]);
+        self::upgrade();
         if (!wp_next_scheduled('itia_cleanup')) {
             wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'itia_cleanup');
         }
@@ -54,7 +52,17 @@ final class Plugin
         delete_option('itia_last_cleanup');
         $settings = self::settings();
         $settings['enabled'] = false;
-        update_option('itia_settings', $settings, false);
+        update_option('itia_settings', $settings);
+    }
+
+    private static function upgrade(): void
+    {
+        global $wpdb;
+        (new Repository($wpdb))->install();
+        // Read on every request, so keep them in the single autoloaded options query.
+        // Schema 1 stored them with autoload off.
+        update_option('itia_schema', 2);
+        wp_set_option_autoload_values(['itia_settings' => true, 'itia_schema' => true, 'itia_last_cleanup' => true]);
     }
 
     public static function settings(): array
@@ -67,9 +75,8 @@ final class Plugin
 
     public function maintain(): void
     {
-        if ((int) get_option('itia_schema', 0) !== 1) {
-            $this->repository->install();
-            update_option('itia_schema', 1, false);
+        if ((int) get_option('itia_schema', 0) !== 2) {
+            self::upgrade();
         }
         if (!wp_next_scheduled('itia_cleanup')) {
             wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'itia_cleanup');
@@ -83,10 +90,12 @@ final class Plugin
     public function cleanup(): void
     {
         $this->repository->prune(self::settings()['retention']);
-        update_option('itia_last_cleanup', gmdate('Y-m-d'), false);
+        update_option('itia_last_cleanup', gmdate('Y-m-d'));
     }
 
-    public function observe(string $template): string
+    // Untyped: another plugin's filter may hand over a non-string, and an
+    // observer must never be the reason a public page fatals.
+    public function observe(mixed $template): mixed
     {
         $this->pending = null;
         if (!self::settings()['enabled'] || is_admin() || is_user_logged_in()
@@ -160,7 +169,7 @@ final class Plugin
         update_option('itia_settings', [
             'enabled' => isset($_POST['enabled']) && $_POST['enabled'] === '1',
             'retention' => in_array($days, [1, 7, 14, 30], true) ? $days : 7,
-        ], false);
+        ]);
         $this->cleanup();
         $this->redirect();
     }
