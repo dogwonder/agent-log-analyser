@@ -4,7 +4,9 @@ Finds AI agents and other automated clients in web server logs, including those 
 
 It's a companion to [Markdown for Agents and Statistics](../markdown-for-agents-and-statistics). That plugin only counts requests that ask for Markdown. Agents that fetch the HTML page with a browser User-Agent never reach its statistics. This tool finds them in the host's access logs instead.
 
-It runs **offline, on your own machine, against a log export**. Nothing is installed on the site, nothing runs per request, and nothing is written to the site's database. It works the same for WordPress, Wagtail or any other site with an nginx-style log.
+The Python analyser runs **offline, on your own machine, against a log export**. Nothing is installed on the site, nothing runs per request, and nothing is written to the site's database. It works the same for WordPress, Wagtail or any other site with an nginx-style log.
+
+For an experimental live WordPress companion, see [Is this an agent?](wordpress/is-this-an-agent/README.md). It adds a playful admin notebook of uncertain HTML-request sightings with aggregate-only storage.
 
 ## Background
 
@@ -78,6 +80,20 @@ Access logs contain IP addresses, which are personal data under UK GDPR.
 - Delete log exports after analysis.
 
 ## Development
+
+### Experimental WordPress companion
+
+[Is this an agent?](wordpress/is-this-an-agent/README.md) is a separate, installable
+WordPress plugin for tentative live HTML request sightings. It offers a playful
+admin field guide, explains every guess and stores only site-wide daily counters,
+with no saved IPs or visitor identifiers. Observation starts paused, with seven
+days of retention. It does not change the offline analyser below.
+
+Build its ZIP with `python3 wordpress/build.py`; run its detector checks with
+`php wordpress/tests/detector.php`. See its README for privacy controls and cache
+limitations.
+
+### Offline analyser
 
 ```bash
 PYTHONPATH=src:tests python3 -m unittest discover -s tests
