@@ -24,14 +24,17 @@ The Markdown companion is optional. The plugins keep separate counters. This plu
 | Label | What it actually means |
 | --- | --- |
 | Possibly Muse | An exact research pattern, an in-memory network match and automation clues coincide. Shared infrastructure means this is not proof. |
-| Something automated? | An HTTPS request claims Chrome but lacks Fetch Metadata/client hints and does not advertise Brotli. Proxies and privacy tools can cause false positives. |
+| Something automated? | A request claims Chrome but shows at least two of three habits: no Fetch Metadata or client hints (HTTPS only), no Brotli (HTTPS only), no `Accept-Language`. Proxies and privacy tools can cause false positives. |
 | A tool walked in | A recognised HTTP tool or HeadlessChrome. It might be an assistant, scraper, monitor or developer. |
-| Says it is Muse / Dot / Grok | A matching X-Agent introduction or bounded User-Agent product token. Anyone can spoof either. |
-| Introduced itself | An unknown X-Agent introduction or a recognised agent User-Agent token. Unverified. |
+| Says it is Muse / Instinct / OpenClaw / Dot / Grok | A matching X-Agent introduction or bounded User-Agent product token. Anyone can spoof either. |
+| Introduced itself | Any other X-Agent introduction. The text itself is never stored. Unverified. |
+| Signed as ChatGPT agent / Signed by another agent | `Signature` and `Signature-Input` ([Web Bot Auth](https://datatracker.ietf.org/wg/webbotauth/about/)) headers on a request with an ordinary browser User-Agent. The signer is named only when `Signature-Agent` points to a host on a fixed list (currently `chatgpt.com`). The signature is not verified. |
 
-There are no browser fingerprint rules for Dot/Dots or Grok. `DotBot` is not interpreted as Dot. A missing referrer, Linux browser or Cloudflare address never identifies an agent. Ordinary requests without sufficient clues produce no stored record. Counts are requests, never unique visitors or agents.
+**Self-declared bots are not counted.** A User-Agent that calls itself a bot, crawler or spider, or carries an agent token such as `ChatGPT-User`, `Claude-User` or `Google-Agent`, produces no record, even if it also claims Chrome. Markdown for Agents and Statistics and the access logs already cover those. This plugin is for clients that don't say what they are.
 
-The experimental Muse rule is based on [Tom Loosemore's research](https://loosemore.com/2026/10/09/how-agents-show-up-what-muse-and-other-agents-reveal-when-they-use-whenisbins/) and the companion repository's `docs/research/2026-10-muse-agent-findings.md`. Its narrow rule is in `includes/Detector.php`, version 1, and stops assigning Muse guesses on **15 January 2027** pending review. It is not a vendor-published IP verification rule. Historical totals retain their rule version.
+There are no browser fingerprint rules for Instinct, OpenClaw, Dot/Dots or Grok. Instinct's browser uses the same Chrome-on-Linux string as Muse's, and OpenClaw's HeadlessChrome is counted under “A tool walked in” unless it introduces itself. `DotBot` is not interpreted as Dot. A missing referrer, Linux browser or Cloudflare address never identifies an agent. Ordinary requests without sufficient clues produce no stored record. Counts are requests, never unique visitors or agents.
+
+The experimental Muse rule is based on [Tom Loosemore's research](https://loosemore.com/2026/10/09/how-agents-show-up-what-muse-and-other-agents-reveal-when-they-use-whenisbins/) and the companion repository's `docs/research/2026-10-muse-agent-findings.md`. Its narrow rule is in `includes/Detector.php` and stops assigning Muse guesses on **15 January 2027** pending review. It is not a vendor-published IP verification rule. Historical totals retain their rule version: version 2 (0.1.2) added more default HTTP-library User-Agents to “A tool walked in”, so Rule 1 and Rule 2 tool counts are not directly comparable. Version 3 (0.1.4) stopped counting self-declared bots, so earlier “Introduced itself” rows include named crawlers such as ClaudeBot. Version 4 (0.1.5) added signed agents and the `Accept-Language` habit, and stopped treating missing Fetch Metadata as a clue over plain HTTP, where Chrome never sends it.
 
 ## Privacy by minimisation
 
@@ -42,7 +45,7 @@ Its entire observation table is:
 | Column | Content |
 | --- | --- |
 | `observed_day` | UTC date, with no time of day |
-| `category` | One of seven fixed labels |
+| `category` | One of a fixed set of labels in `Detector::categories()` |
 | `clues` | A fixed set of boolean rule flags |
 | `rule_version` | Detector version |
 | `hits` | Aggregate request count |
@@ -64,6 +67,7 @@ These measures support data minimisation; they do not certify GDPR compliance or
 - Page caches/CDNs can answer before WordPress runs. The plugin neither defeats caching nor injects a beacon. Zero sightings does not mean zero agents.
 - Generic agents may blend in perfectly. No asset, cross-request, rotating-IP or daily-schedule tracking is performed. The offline Python analyser remains better suited to log-based investigations.
 - Only `REMOTE_ADDR` is used. Forwarded headers are ignored. Behind a proxy, the host must safely restore the client address from a trusted proxy; otherwise network attribution will usually be unavailable. Do not copy untrusted forwarding headers into `REMOTE_ADDR`.
+- The Brotli and missing-header clues only apply when WordPress's `is_ssl()` is true. If a proxy terminates TLS without the host setting `$_SERVER['HTTPS']`, “Something automated?” and the browser-string Muse rule never fire; only tool and HeadlessChrome sightings remain.
 - Additional membership/account routes implemented by third-party plugins may look like public WordPress pages. Exclude those with the filter below.
 
 ```php
@@ -84,4 +88,6 @@ find wordpress/is-this-an-agent -name '*.php' -exec php -l {} \;
 python3 wordpress/build.py
 ```
 
-The build contains only plugin files and writes `dist/is-this-an-agent-0.1.1.zip`. No access logs, reports, ranges or test fixtures are packaged.
+The build contains only plugin files and writes `dist/is-this-an-agent-<version>.zip`, refusing to package if the plugin header and `Plugin::VERSION` disagree. No access logs, reports, ranges or test fixtures are packaged.
+
+`python3 wordpress/tests/integration.py` runs smoke tests against real WordPress. It needs a disposable site at `/tmp/itia-wordpress-test` served on `127.0.0.1:8765`, with database `itia_test`, site title `Agent Finder Test`, an administrator `agent_test` (password `temporary-local-test-only`), WP-CLI on the `PATH` and the plugin active. It refuses any other database, writes and removes a temporary mu-plugin, and uninstalls then reactivates the plugin. Never point it at a real site.

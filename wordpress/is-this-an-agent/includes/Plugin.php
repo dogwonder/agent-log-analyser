@@ -6,6 +6,9 @@ namespace ChanceryLane\AgentFinder;
 
 final class Plugin
 {
+    /** Must match the plugin header; build.py refuses to package a mismatch. */
+    public const VERSION = '0.1.5';
+
     private Repository $repository;
     private ?array $pending = null;
     private string $day = '';
@@ -158,7 +161,7 @@ final class Plugin
     public function assets(string $hook): void
     {
         if ($hook === 'tools_page_is-this-an-agent') {
-            wp_enqueue_style('itia-admin', plugins_url('assets/admin.css', $this->file), [], '0.1.1');
+            wp_enqueue_style('itia-admin', plugins_url('assets/admin.css', $this->file), [], self::VERSION);
         }
     }
 
@@ -260,7 +263,7 @@ final class Plugin
                 <h3 class="itia-group-title">The ones who introduced themselves</h3>
                 <p class="description">A name badge is useful. It is also easy to make your own. These claims are unverified.</p>
                 <div class="itia-introductions">
-                    <?php foreach (['declared_muse', 'declared_dot', 'declared_grok', 'declared_other'] as $key) : ?>
+                    <?php foreach (['declared_muse', 'declared_instinct', 'declared_openclaw', 'declared_dot', 'declared_grok', 'declared_other', 'signed_chatgpt', 'signed_other'] as $key) : ?>
                         <div class="postbox itia-card itia-card-declared"><div class="inside"><h4 class="itia-label"><?php echo esc_html($categories[$key][0]); ?></h4>
                             <p class="itia-count"><?php echo $awaitingStart ? '<span aria-label="Observation has not started">—</span>' : esc_html(number_format_i18n((int) ($totals[$key] ?? 0))); ?></p>
                             <span class="itia-tag"><?php echo $awaitingStart ? 'Enable observation to collect results' : 'Self-declared · matching requests'; ?></span>
@@ -289,7 +292,8 @@ final class Plugin
                 <div class="inside">
                 <p>Enough to be curious. Not enough to identify a person, verify an agent, or block a visitor. There are no calibrated probability scores here. A normal-looking browser may still be an assistant.</p>
                 <p><strong>Muse:</strong> an experimental rule combines the network observed in <a href="<?php echo esc_url(Detector::SOURCE); ?>">Tom Loosemore’s October 2026 research</a> with a specific curl or browser pattern and automation clues. The pool is not verified as exclusive to Muse. This rule stops assigning new Muse guesses on <?php echo esc_html(Detector::MUSE_RULE_EXPIRES); ?> unless a future plugin release reviews it. Historical guesses remain guesses.</p>
-                <p><strong>Dot / Dots and Grok:</strong> self-introductions only. We do not have a supported browser fingerprint for either. A shared Cloudflare address or a Linux browser is never enough to name an agent.</p>
+                <p><strong>Instinct, OpenClaw, Dot / Dots and Grok:</strong> self-introductions only. We do not have a supported browser fingerprint for any of them. Instinct's browser looks like Muse's, and OpenClaw's headless browser is counted as a tool. A shared Cloudflare address or a Linux browser is never enough to name an agent.</p>
+                <p><strong>Signed agents:</strong> some operators, such as OpenAI's ChatGPT agent, sign requests with Web Bot Auth headers while presenting an ordinary browser User-Agent. We count the headers and name the signer only from a short fixed list. We do not verify the signature, so a signed sighting is still a claim.</p>
                 <p><strong>Blind spots:</strong> only successful public HTML pages, posts and the home page that reach WordPress are eligible. Cache hits, Markdown responses, API calls, archives, searches, query-string URLs, logged-in visitors and privacy opt-outs are excluded. A proxy can hide the network clue or strip headers. These are a partial view, not your total agent traffic.</p>
                 <p>Works alongside Markdown for Agents and Statistics. Its Markdown counts and these HTML clues answer different questions; adding them does not produce a count of unique agents.</p>
                 </div>

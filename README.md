@@ -90,8 +90,9 @@ with no saved IPs or visitor identifiers. Observation starts paused, with seven
 days of retention. It does not change the offline analyser below.
 
 Build its ZIP with `python3 wordpress/build.py`; run its detector checks with
-`php wordpress/tests/detector.php`. See its README for privacy controls and cache
-limitations.
+`php wordpress/tests/detector.php`. `wordpress/tests/integration.py` needs a
+disposable local WordPress site; see the plugin README for its setup, privacy
+controls and cache limitations.
 
 ### Offline analyser
 

@@ -31,7 +31,7 @@ final class Repository
     public function record(array $finding, string $day): void
     {
         if (!isset(Detector::categories()[$finding['category'] ?? ''])
-            || !is_int($finding['clues'] ?? null) || $finding['clues'] < 1 || $finding['clues'] > 255
+            || !is_int($finding['clues'] ?? null) || $finding['clues'] < 1 || ($finding['clues'] & ~Detector::ALL_CLUES) !== 0
             || ($finding['rule_version'] ?? null) !== Detector::VERSION
             || !preg_match('/^\d{4}-\d{2}-\d{2}$/D', $day)) {
             return;

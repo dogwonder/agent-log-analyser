@@ -92,7 +92,7 @@ check(int(totals().get('declared_muse', 0)) == 1, 'X-Agent self-introduction is 
 before = count()
 for headers in [{'User-Agent': 'curl/8.5.0', 'DNT': '1'},
                 {'User-Agent': 'curl/8.5.0', 'Sec-GPC': '1'},
-                {'User-Agent': 'Mozilla/5.0 Chrome/154.0.0.0', 'Sec-Fetch-Mode': 'navigate', 'Accept-Encoding': 'gzip, br'}]:
+                {'User-Agent': 'Mozilla/5.0 Chrome/154.0.0.0', 'Sec-Fetch-Mode': 'navigate', 'Accept-Encoding': 'gzip, br', 'Accept-Language': 'en-GB'}]:
     request(headers=headers)
 for path in ['/?private=visitor@example.test', '/?s=private', '/wp-json/', '/feed/', '/does-not-exist/']:
     request(path)
@@ -127,11 +127,14 @@ add_filter('template_include', function ($template) {
     return $template;
 }, 1);
 ''')
-check(request('/markdown-fixture/')[2].get_content_type() == 'text/markdown', 'Early Markdown response fixture is active')
-request(headers={'User-Agent': 'curl/8.5.0', 'X-Itia-Test-Type': 'json'})
-request(headers={'User-Agent': 'curl/8.5.0', 'X-Itia-Test-Type': 'error'})
-check(count() == before, 'Markdown, non-HTML and error responses must not increment counters')
-fixture.unlink()
+try:
+    check(request('/markdown-fixture/')[2].get_content_type() == 'text/markdown', 'Early Markdown response fixture is active')
+    request(headers={'User-Agent': 'curl/8.5.0', 'X-Itia-Test-Type': 'json'})
+    request(headers={'User-Agent': 'curl/8.5.0', 'X-Itia-Test-Type': 'error'})
+    check(count() == before, 'Markdown, non-HTML and error responses must not increment counters')
+finally:
+    # A leftover fixture would silently alter every later run.
+    fixture.unlink()
 
 status, markup, _ = request('/wp-admin/tools.php?page=is-this-an-agent', opener=admin)
 check(status == 200 and 'User-Agent names an HTTP tool' in markup and 'Sent an X-Agent self-introduction' in markup, 'Stored clues are visible on the dashboard')
@@ -141,7 +144,7 @@ check(columns == ['observed_day', 'category', 'clues', 'rule_version', 'hits'], 
 
 # Seed only synthetic aggregate data to exercise expiry, not raw visitor records.
 php('''global $wpdb; $repo = new \\ChanceryLane\\AgentFinder\\Repository($wpdb);
-$finding = ['category'=>'tool','clues'=>4,'rule_version'=>1];
+$finding = ['category'=>'tool','clues'=>4,'rule_version'=>\\ChanceryLane\\AgentFinder\\Detector::VERSION];
 $repo->record($finding, gmdate('Y-m-d', time()-8*DAY_IN_SECONDS));
 $repo->record($finding, gmdate('Y-m-d', time()-DAY_IN_SECONDS));
 $repo->prune(7);

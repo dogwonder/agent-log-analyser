@@ -1,13 +1,12 @@
 <?php
 /**
  * Plugin Name: Is this an agent?
- * Description: A small, mildly suspicious field guide to possible AI visitors. Clues, not convictions.
- * Version: 0.1.1
+ * Description: A small, mildly suspicious field guide to possible AI visitors. Clues, not convictions. Deactivating deletes its counts.
+ * Version: 0.1.5
  * Requires at least: 6.5
  * Requires PHP: 8.2
  * Author: The Chancery Lane Project
  * License: GPL-2.0-or-later
- * Text Domain: is-this-an-agent
  */
 
 declare(strict_types=1);
