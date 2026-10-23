@@ -6,8 +6,6 @@ It's a companion to [Markdown for Agents and Statistics](../markdown-for-agents-
 
 The Python analyser runs **offline, on your own machine, against a log export**. Nothing is installed on the site, nothing runs per request, and nothing is written to the site's database. It works the same for WordPress, Wagtail or any other site with an nginx-style log.
 
-For an experimental live WordPress companion, see [Is this an agent?](wordpress/is-this-an-agent/README.md). It adds a playful admin notebook of uncertain HTML-request sightings with aggregate-only storage.
-
 ## Background
 
 In October 2026, a manual analysis of worldcitiescultureforum.com found a fetcher that is very probably Muse. It read the site 18 times in a week, including a daily check of one page, and the plugin's stats never saw it. See `docs/research/2026-10-muse-agent-findings.md` in the plugin repo. This tool automates that analysis. Its acceptance test is finding that cluster without being told about it.
@@ -81,21 +79,6 @@ Access logs contain IP addresses, which are personal data under UK GDPR.
 
 ## Development
 
-### Experimental WordPress companion
-
-[Is this an agent?](wordpress/is-this-an-agent/README.md) is a separate, installable
-WordPress plugin for tentative live HTML request sightings. It offers a playful
-admin field guide, explains every guess and stores only site-wide daily counters,
-with no saved IPs or visitor identifiers. Observation starts paused, with seven
-days of retention. It does not change the offline analyser below.
-
-Build its ZIP with `python3 wordpress/build.py`; run its detector checks with
-`php wordpress/tests/detector.php`. `wordpress/tests/integration.py` needs a
-disposable local WordPress site; see the plugin README for its setup, privacy
-controls and cache limitations.
-
-### Offline analyser
-
 ```bash
 PYTHONPATH=src:tests python3 -m unittest discover -s tests
 ```
@@ -107,3 +90,8 @@ Layout:
 - `detectors.py`: classification, clustering, schedules, verification
 - `report.py`: Markdown output
 - `cli.py`: the command-line interface
+
+## Licence
+
+Licensed under the GNU General Public License, version 2 or (at your option) any
+later version (`GPL-2.0-or-later`). See [LICENSE](LICENSE) for the full text.
